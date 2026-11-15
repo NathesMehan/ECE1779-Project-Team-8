@@ -1,0 +1,72 @@
+
+:root {
+  font-family: Inter, 'Segoe UI', Arial, sans-serif;
+  color: #2E1065;
+  background-color: #F5F3FF;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+
+  /* Lavender & Amethyst palette */
+  --purple-dark: #4C1D95;
+  --purple-primary: #7C3AED;
+  --lilac: #C4B5FD;
+  --lavender: #EDE9FE;
+  --background: #F5F3FF;
+  --surface: #FFFFFF;
+
+  /* Supporting colors */
+  --text-primary: #2E1065;
+  --text-secondary: #6B6280;
+  --border-color: #E9E2F5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--background);
+  color: var(--text-primary);
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+
+/* Application layout */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+  padding: 40px;
+}
+
+@media (max-width: 768px) {
+  .app-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+  }
+
+  .main-content {
+    padding: 24px;
+  }
+}

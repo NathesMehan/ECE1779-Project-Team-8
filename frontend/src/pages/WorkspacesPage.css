@@ -1,0 +1,124 @@
+
+.workspace-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.workspace-header h1 {
+  margin: 0 0 12px;
+}
+
+.workspace-header p {
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.workspace-form-container {
+  margin-top: 28px;
+}
+
+.workspace-list {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(min(100%, 280px), 1fr)
+  );
+  gap: 22px;
+  margin-top: 36px;
+}
+
+.workspace-card {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 26px;
+  box-shadow: 0 6px 20px rgba(76, 29, 149, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.workspace-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--lilac);
+  box-shadow: 0 12px 30px rgba(76, 29, 149, 0.12);
+}
+
+.workspace-card:focus-visible {
+  outline: 3px solid var(--purple-primary);
+  outline-offset: 3px;
+}
+
+.workspace-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  margin-bottom: 22px;
+  border-radius: 14px;
+  background: var(--lavender);
+  color: var(--purple-primary);
+  font-size: 25px;
+}
+
+.workspace-card h3 {
+  margin: 0 0 12px;
+  color: var(--purple-dark);
+  font-size: 20px;
+}
+
+.workspace-card p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 44px;
+}
+
+.workspace-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.role-badge {
+  background: var(--lavender);
+  color: var(--purple-dark);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.workspace-open {
+  color: var(--purple-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.workspace-empty {
+  background: var(--surface);
+  border: 1px dashed var(--lilac);
+  border-radius: 18px;
+  padding: 40px;
+  text-align: center;
+  grid-column: 1 / -1;
+}
+
+.workspace-empty p {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 600px) {
+  .workspace-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

@@ -1,0 +1,75 @@
+
+.workspace-form {
+  background: var(--surface);
+  padding: 32px;
+  border-radius: 20px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 12px 35px rgba(76, 29, 149, 0.08);
+  max-width: 500px;
+  width: 100%;
+}
+
+.workspace-form h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  color: var(--purple-dark);
+}
+
+.workspace-form p {
+  margin: 0 0 28px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.workspace-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.workspace-form input,
+.workspace-form textarea {
+  display: block;
+  width: 100%;
+  padding: 13px 15px;
+  margin-bottom: 22px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: #FCFAFF;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.workspace-form input:focus,
+.workspace-form textarea:focus {
+  border-color: var(--purple-primary);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+}
+
+.workspace-form textarea {
+  resize: vertical;
+}
+
+.workspace-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+@media (max-width: 480px) {
+  .workspace-form {
+    padding: 24px;
+  }
+
+  .workspace-form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .workspace-form-actions button {
+    width: 100%;
+  }
+}
