@@ -1,4 +1,10 @@
 services:
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "127.0.0.1:8080:80"
+      
   db:
     image: postgres:16
     container_name: ece1779-postgres
