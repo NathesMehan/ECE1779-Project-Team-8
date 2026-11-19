@@ -172,7 +172,21 @@ The following software is required for local development:
 
 **Responsible: Nathes**
 
-[Repository cloning, environment variables, and Docker Compose startup commands.]
+With Docker Desktop running, clone the repository and open it in PowerShell. The infrastructure files are currently on `nathes-cloud`.
+
+```powershell
+git clone --branch nathes-cloud https://github.com/NathesMehan/ECE1779-Project-Team-8.git
+cd ECE1779-Project-Team-8
+Copy-Item .env.example .env
+```
+
+For an existing checkout, use the repository root and keep the existing `.env` if there already is one. Set `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD` in `.env` using `.env.example` as a template. Use a local development password and keep `.env` out of Git.
+
+Start the frontend and PostgreSQL:
+
+```powershell
+docker compose up -d --build frontend db
+```
 
 ### 6.3 Database & Backend Setup
 
@@ -246,6 +260,82 @@ npm run lint
 The production build checks TypeScript compilation and generates optimized application files, while the lint command performs static code checks.
 
 Manual frontend testing covers authentication navigation, workspace creation, document upload validation, member management, AI chat interactions, and activity filtering using mock APIs.
+
+#### Infrastructure verification (Nathes)
+
+**Docker Compose.** After starting the services in section 6.2, run `docker compose ps frontend db`. PostgreSQL should show `healthy`, and the frontend should load at [http://localhost:8080/login](http://localhost:8080/login). Both checks passed with the local Compose setup.
+
+**Compose persistent storage.** In PowerShell, write a fresh test row, recreate the database container, and query for the same row. Continue past the insert once it reports `INSERT 0 1`.
+
+```powershell
+$marker = Get-Random -Minimum 100000 -Maximum 2147483647
+@"
+CREATE TABLE IF NOT EXISTS infra_persistence_check (id integer PRIMARY KEY);
+INSERT INTO infra_persistence_check VALUES ($marker);
+"@ | docker compose exec -T db sh -c 'psql -v ON_ERROR_STOP=1 -U $POSTGRES_USER -d $POSTGRES_DB'
+
+docker compose up -d --force-recreate --wait db
+
+"SELECT id FROM infra_persistence_check WHERE id = $marker;" |
+  docker compose exec -T db sh -c 'psql -v ON_ERROR_STOP=1 -U $POSTGRES_USER -d $POSTGRES_DB'
+```
+
+The original Compose test returned row `1779` after container replacement.
+
+**Kubernetes and persistent storage (minikube).** Use the setup below to reproduce the local cluster checks.
+
+Run these PowerShell commands from the repository root with Docker Desktop running and `minikube` and `kubectl` installed.
+
+1. Start minikube and load the frontend image into the cluster.
+
+   ```powershell
+   minikube -p minikube start --driver=docker
+   kubectl --context=minikube get nodes
+   docker build -t context-workspace-frontend:dev ./frontend
+   minikube -p minikube image load context-workspace-frontend:dev
+   ```
+
+2. If you do not already have a local `.env`, copy `.env.example` to `.env` and set the PostgreSQL password for local development. Use a file containing only `POSTGRES_DB`, `POSTGRES_USER`, and `POSTGRES_PASSWORD` to create the Secret. Create it once per cluster and namespace.
+
+   ```powershell
+   kubectl --context=minikube create secret generic postgres-env --from-env-file=.env
+   ```
+
+3. Apply the manifests and wait for both Deployments. The `postgres-data` claim should be `Bound`.
+
+   ```powershell
+   kubectl --context=minikube apply -f kubernetes/
+   kubectl --context=minikube get pvc postgres-data
+   kubectl --context=minikube rollout status deployment/postgres --timeout=120s
+   kubectl --context=minikube rollout status deployment/frontend --timeout=120s
+   ```
+
+4. Forward the frontend Service to port 8081 and open [the sign-in page](http://localhost:8081/login). Press Ctrl+C to stop forwarding when finished.
+
+   ```powershell
+   kubectl --context=minikube port-forward service/frontend 8081:80
+   ```
+
+- **Frontend routing.** The sign-in page loaded directly at `http://localhost:8081/login` through `service/frontend`. The UI uses demo authentication, and the Kubernetes Nginx configuration returns HTTP 503 for `/api/` until the backend is connected.
+- **PostgreSQL persistence.** After inserting test row `1779`, restarting `deployment/postgres`, and waiting for the replacement pod, PostgreSQL returned the same row.
+
+To repeat the persistence check, insert a fresh marker, wait for the new pod, and query for the marker. Continue past the insert once PostgreSQL reports `INSERT 0 1`.
+
+```powershell
+$marker = Get-Random -Minimum 100000 -Maximum 2147483647
+@"
+CREATE TABLE IF NOT EXISTS infra_persistence_check (id integer PRIMARY KEY);
+INSERT INTO infra_persistence_check VALUES ($marker);
+"@ | kubectl --context=minikube exec -i deployment/postgres -- sh -c 'psql -v ON_ERROR_STOP=1 -U $POSTGRES_USER -d $POSTGRES_DB'
+
+kubectl --context=minikube rollout restart deployment/postgres
+kubectl --context=minikube rollout status deployment/postgres --timeout=120s
+
+"SELECT id FROM infra_persistence_check WHERE id = $marker;" |
+  kubectl --context=minikube exec -i deployment/postgres -- sh -c 'psql -v ON_ERROR_STOP=1 -U $POSTGRES_USER -d $POSTGRES_DB'
+```
+
+**DigitalOcean deployment and monitoring.** After deploying to DigitalOcean, check that the workloads are ready and the PostgreSQL PVC is bound to cloud-backed storage. Repeat the pod replacement test in the cloud cluster. Open the public HTTPS URL and verify the frontend and API. In the DigitalOcean monitoring dashboard, confirm that metrics are being collected and record the configured dashboard or alert. Cloud deployment and monitoring verification are pending.
 
 ## 7. Deployment Information
 **Responsible: Nathes**
