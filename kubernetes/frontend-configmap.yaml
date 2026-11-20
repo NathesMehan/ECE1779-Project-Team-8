@@ -16,6 +16,6 @@ data:
       }
 
       location /api/ {
-        return 503;
+        proxy_pass http://backend:3000;
       }
     }
