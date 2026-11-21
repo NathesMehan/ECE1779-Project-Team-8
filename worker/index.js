@@ -2,13 +2,12 @@ const { extractText } = require("./documentProcessor");
 const { askGemini } = require("./llmService");
 
 // Process a document processing job
-async function processDocumentJob(filePath) {
-    console.log("Starting document processing...");
-
+async function processDocumentJob(fileBuffer, fileName) {
     try {
-        const text = await extractText(filePath);
-
-        console.log("Document processing completed.");
+        if (!Buffer.isBuffer(fileBuffer)) {
+            throw new Error("The document task did not contain a file buffer.");
+        }
+        const text = await extractText(fileBuffer, fileName);
 
         return {
             status: "completed",
@@ -16,27 +15,22 @@ async function processDocumentJob(filePath) {
         };
 
     } catch (error) {
-        console.error("Document processing failed:", error.message);
-
         return {
             status: "failed",
-            error: error.message
+            error: error.message.slice(0, 240)
         };
     }
 }
 
 // Process an LLM query job
-async function processQueryJob(documentText, question, onChunk) {
-    console.log("Starting LLM query...");
-
+async function processQueryJob(documents, question, onChunk, options) {
     try {
         const answer = await askGemini(
-            documentText,
+            documents,
             question,
-            onChunk
+            onChunk,
+            options
         );
-
-        console.log("\nLLM query completed.");
 
         return {
             status: "completed",
@@ -44,11 +38,10 @@ async function processQueryJob(documentText, question, onChunk) {
         };
 
     } catch (error) {
-        console.error("LLM query failed:", error.message);
-
         return {
             status: "failed",
-            error: error.message
+            error: error.message,
+            errorCategory: error.code
         };
     }
 }
